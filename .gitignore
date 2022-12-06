@@ -3,3 +3,4 @@
 Resource/.DS_Store
 Resource/ImageRecognition/mqttConfig.txt
 Resource/ImageRecognition/config/yolov3.weights
+arduino_secrets.h

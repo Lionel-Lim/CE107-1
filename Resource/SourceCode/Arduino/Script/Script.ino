@@ -30,6 +30,7 @@ WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 
 #define btnPin 1
+#define servoPin 13
 
 #define SERVO_PIN 2  // pin used to control the servo
 Servo myservo;       // create an instance of the servo class
@@ -41,70 +42,105 @@ const int servoInterval = 500;
 const int led_A_Interval = 500;  // number of millisecs between refreshing
 const int btnInterval = 100;
 const int numberOfData = 3;
+const String dataArray[numberOfData] = {"RoomCapacity", "Temperature", "Humidity"}; 
+const int initServoLocation = 0;
 
 // Variables will be changed
+int stateIndexInterval = 1;
+int nextRotateDegree = 0;
 int lastButtonState = 1;
 int buttonState;
 int letRotate = 1;
 int rotateDegree = 0;
 int unitRotation = 0;
+int stateIndex = 0;
 unsigned long previousservoInterval = 0;  // will store last time the LED was updated
 unsigned long previousLed_A_Millis = 0;
-
 unsigned long previousBtnDebounceTime = 0;
+bool ledReady = false;
 
 int x = 7;
 
 void setup() {
 
   Serial.begin(115200);  // open serial connection for debug info
-  delay(100);            // Good idea to send data to both device and serial as it helps with troubleshooting.
-
-  Serial.println("HT16K33 test");
+  Serial.println("Power Connected.");
 
   startWifi();
 
   // start MQTT server
-  Serial.print(ssid);
-  Serial.print(mqtt_server);
   mqttClient.setServer(mqtt_server, 1883);
   mqttClient.setCallback(callback);
 
   // run initialisation functions
-  myservo.attach(13);
-  // pinMode(btnPin, INPUT);
+    //Servo
+  myservo.attach(servoPin);
+  myservo.write(initServoLocation);
+  unitRotation = 180 / numberOfData;
+    //Button
   pinMode(btnPin, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(btnPin), readRotateBtnState, RISING);
-  myservo.write(0);
-  Serial.println("8x8 LED Matrix Test");
-
+    //LED Display
   matrix.begin(0x70);         // set the address
   matrix.setTextWrap(false);  // we dont want text to wrap so it scrolls nicely
   matrix.setTextSize(1);
   matrix.setTextColor(LED_GREEN);
-  unitRotation = 180 / numberOfData;
 }
 
 void loop() {
-
+  // Connect MQTT
   if (!mqttClient.connected()) {
     Serial.print("Connection Failed.");
     reconnect();
   }
   mqttClient.loop();
 
-  if (x >= 0) {
-    matrix.clear();
+  // LED Display
+  if (ledReady){
     matrix.setCursor(x, 0);
-    matrix.print("Hello");
-    matrix.writeDisplay();
     x--;
-  } else {
-    x = 7;
+    if (x < 0){
+      x = 7;
+    }
   }
-  delay(150);
+
+  // if (x >= 0) {
+  //   matrix.clear();
+  //   matrix.setCursor(x, 0);
+  //   matrix.print("Hello");
+  //   matrix.writeDisplay();
+  //   x--;
+  // } else {
+  //   x = 7;
+  // }
+  // delay(150);
+
+  // displayLED();
 }
 
+void readRotateBtnState() {
+  ledReady = false;
+  rotateServo();
+  displayLED();
+  previousBtnDebounceTime += btnInterval;
+  if (stateIndex == numberOfData - 1){
+    stateIndexInterval = -stateIndexInterval;
+  }
+  stateIndex = stateIndex + stateIndexInterval;
+  ledReady = true;
+}
+
+void displayLED(){
+  matrix.clear();
+  matrix.print(dataArray[stateIndex]);
+  matrix.writeDisplay();
+  x = 7;
+}
+
+void rotateServo() {
+  nextRotateDegree = (unitRotation * stateIndex) + initServoLocation;
+  myservo.write(nextRotateDegree);
+}
 
 void startWifi() {
   // We start by connecting to a WiFi network
@@ -123,8 +159,6 @@ void startWifi() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
-
-
 
 void callback(char* topic, byte* payload, unsigned int length) {
   if (strcmp(topic, "UCL/OPS/107/SLS/WS1361_01/dB") == 0) {
@@ -149,14 +183,6 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println();
     Serial.println("-----------------------");
   }
-
-  // if (strcmp(topic,"blue")==0) {
-  //   // this one is blue...
-  // }
-
-  // if (strcmp(topic,"green")==0) {
-  //   // i forgot, is this orange?
-  // }
 }
 
 void reconnect() {
@@ -174,64 +200,4 @@ void reconnect() {
     // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
     // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
   }
-}
-
-
-void readRotateBtnState() {
-  if (millis() - previousBtnDebounceTime >= btnInterval) {
-    if (digitalRead(btnPin) == HIGH) {
-      Serial.println("I am working!");
-      rotateServo();
-      previousBtnDebounceTime += btnInterval;
-    }
-  }
-}
-
-void rotateServo() {
-  int nextRotateDegree = unitRotation + rotateDegree;
-  Serial.println("unit:" + String(unitRotation) + "rotate:" + String(rotateDegree));
-  if (nextRotateDegree > 180 || nextRotateDegree < 0) {
-    Serial.println("I am adding!");
-    unitRotation = -unitRotation;
-    nextRotateDegree = unitRotation + rotateDegree;
-  }
-  myservo.write(nextRotateDegree);
-
-  if (nextRotateDegree = 60) {
-    if (x >= -37) {
-      //ledboard();
-      matrix.clear();
-      matrix.setCursor(x, 0);
-      matrix.print("Temperature");
-      matrix.writeDisplay();
-      x--;
-    } else {
-      x = 7;
-    };
-  };
-  if (nextRotateDegree = 120) {
-    if (x >= -37) {
-      //ledboard();
-      matrix.clear();
-      matrix.setCursor(x, 0);
-      matrix.print("Humidity");
-      matrix.writeDisplay();
-      x--;
-    } else {
-      x = 7;
-    };
-  };
-  if (nextRotateDegree = 180) {
-    if (x >= -37) {
-      //ledboard();
-      matrix.clear();
-      matrix.setCursor(x, 0);
-      matrix.print("Noise");
-      matrix.writeDisplay();
-      x--;
-    } else {
-      x = 7;
-    };
-  };
-  rotateDegree = nextRotateDegree;
 }
