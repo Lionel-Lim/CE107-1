@@ -39,7 +39,7 @@ Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();  // create an instance
 
 // Variables not changing
 const int servoInterval = 500;
-const int led_A_Interval = 500;  // number of millisecs between refreshing
+const int ledInterval = 50000;  // number of millisecs between refreshing
 const int btnInterval = 100;
 const int numberOfData = 3;
 const String dataArray[numberOfData] = {"RoomCapacity", "Temperature", "Humidity"}; 
@@ -55,7 +55,7 @@ int rotateDegree = 0;
 int unitRotation = 0;
 int stateIndex = 0;
 unsigned long previousservoInterval = 0;  // will store last time the LED was updated
-unsigned long previousLed_A_Millis = 0;
+unsigned long previousLed_Interval = 0;
 unsigned long previousBtnDebounceTime = 0;
 bool ledReady = false;
 
@@ -66,7 +66,7 @@ void setup() {
   Serial.begin(115200);  // open serial connection for debug info
   Serial.println("Power Connected.");
 
-  startWifi();
+  // startWifi();
 
   // start MQTT server
   mqttClient.setServer(mqtt_server, 1883);
@@ -89,52 +89,50 @@ void setup() {
 
 void loop() {
   // Connect MQTT
-  if (!mqttClient.connected()) {
-    Serial.print("Connection Failed.");
-    reconnect();
-  }
-  mqttClient.loop();
+  // if (!mqttClient.connected()) {
+  //   Serial.print("Connection Failed.");
+  //   reconnect();
+  // }
+  // mqttClient.loop();
 
   // LED Display
   if (ledReady){
-    matrix.setCursor(x, 0);
-    x--;
-    if (x < 0){
-      x = 7;
-    }
+    displayLED();
   }
-
-  // if (x >= 0) {
-  //   matrix.clear();
-  //   matrix.setCursor(x, 0);
-  //   matrix.print("Hello");
-  //   matrix.writeDisplay();
-  //   x--;
-  // } else {
-  //   x = 7;
-  // }
-  // delay(150);
-
-  // displayLED();
 }
 
 void readRotateBtnState() {
+  if ((millis() - previousBtnDebounceTime) > btnInterval) {
   ledReady = false;
+  x = 7;
   rotateServo();
-  displayLED();
-  previousBtnDebounceTime += btnInterval;
-  if (stateIndex == numberOfData - 1){
+  // displayLED();
+  stateIndex = stateIndex + stateIndexInterval;
+  if (stateIndex == numberOfData - 1 || stateIndex == 0){
     stateIndexInterval = -stateIndexInterval;
   }
-  stateIndex = stateIndex + stateIndexInterval;
+  Serial.println(stateIndex);
   ledReady = true;
+  }
+  previousBtnDebounceTime = previousBtnDebounceTime + btnInterval;
 }
 
 void displayLED(){
-  matrix.clear();
-  matrix.print(dataArray[stateIndex]);
-  matrix.writeDisplay();
-  x = 7;
+  if(previousLed_Interval == ledInterval){
+    matrix.clear();
+    matrix.setCursor(x, 0);
+    matrix.print(dataArray[stateIndex]);
+    Serial.print("LED Info");
+    // Serial.print(matrix.displaybuffer[8].size());
+    // Serial.println(matrix.width());
+    x--;
+    if (x < -100){
+      x = 7;
+    }
+    matrix.writeDisplay();
+    previousLed_Interval = 0;
+  }
+  previousLed_Interval = previousLed_Interval + 1;
 }
 
 void rotateServo() {
@@ -194,8 +192,10 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
     // mqttClient.connect(clientId.c_str(), mqttuser, mqttpass);
     mqttClient.connect(clientId.c_str());
-    mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
-    mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/speed");
+    // Temp
+    // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
+    // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/speed");
+    // Temp
     // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
     // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
     // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
