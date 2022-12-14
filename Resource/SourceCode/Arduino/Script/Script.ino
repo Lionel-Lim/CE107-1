@@ -21,6 +21,7 @@
 uint8_t max_bright = 1;
 CRGB leds[NUM_LEDS];
 
+#include "ServoEasing.hpp"
 /*
 **** please enter your sensitive data in the Secret tab/arduino_secrets.h
 **** using format below
@@ -43,19 +44,20 @@ PubSubClient mqttClient(espClient);
 #define btnPin 1
 #define servoPin 13
 
-Servo myservo;  // create an instance of the servo class
+ServoEasing myservo;  // create an instance of the servo class
 
 Adafruit_BicolorMatrix matrix = Adafruit_BicolorMatrix();  // create an instance of the LED class
 
 // Variables not changing
-const int servoInterval = 500;
-const int ledInterval = 250;  // number of millisecs between refreshing
-const int btnInterval = 50;
-const int numberOfData = 3;
-const String dataArray[numberOfData] = { "Noise", "Temperature", "Humidity" };
-const int maxArray[numberOfData] = { 150, 40, 100 };
-const int minArray[numberOfData] = { 0, 10, 0 };
 
+const int ledInterval = 27;  // number of millisecs between refreshing
+const int iniInterval = 90;  // number of millisecs between refreshing
+const int btnInterval = 300;
+const int numberOfData = 4;
+const String dataArray[numberOfData] = {  "Temperature","Noise", "pm1","RoomCapacity" };
+const int maxArray[numberOfData] = {  35,140, 250, 30 };
+const int minArray[numberOfData] = {  15, 30,0, 0 };
+const int ledArray[numberOfData] = {  -80, -60, -28, -100 };
 const int initServoLocation = 0;
 
 
@@ -69,13 +71,13 @@ int rotateDegree = 0;
 int unitRotation = 0;
 int stateIndex = 0;
 //mqtt data
-int Temperature = 10;
-int Humidity = 10;
-int pm25 = 0;
+int Temperature = 25;
+int RoomCapacity=15;
+int pm1 = 1;
 int Noise = 10;
 int mapped = 1;
-unsigned long previousservoInterval = 0;  // will store last time the LED was updated
 unsigned long previousLed_Interval = 0;
+unsigned long previousiniLed_Interval = 0;
 unsigned long previousBtnDebounceTime = 0;
 
 bool ledReady = false;
@@ -110,13 +112,20 @@ void setup() {
   //Servo
   myservo.attach(servoPin);
   myservo.write(initServoLocation);
+  // myservo.setEasingType(EASE_SINE_IN_OUT);
+    // myservo.startEaseTo(initServoLocation,20);
   unitRotation = 180 / numberOfData;
   //Button
-  pinMode(btnPin, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(btnPin), readRotateBtnState, RISING);
+  pinMode(btnPin, INPUT);
+  // pinMode(btnPin, INPUT_PULLUP);
+  // attachInterrupt(digitalPinToInterrupt(btnPin), readRotateBtnState, RISING);
 }
 
 void loop() {
+
+  if (btnPin == HIGH){
+    readRotateBtnState();
+  }
 
   if (mqttdisconnected) {
     displayLEDINI();
@@ -161,6 +170,7 @@ void readRotateBtnState() {
   previousBtnDebounceTime = previousBtnDebounceTime + btnInterval;
 }
 
+
 void displayLED() {
   if (previousLed_Interval == ledInterval) {
 
@@ -169,17 +179,21 @@ void displayLED() {
     matrix.print(dataArray[stateIndex]);
 
     if (strcmp(dataArray[stateIndex].c_str(), "Noise") == 0) {
-      matrix.setCursor(x + 30, 0);
+      matrix.setCursor(x + 33, 0);
       matrix.print(Noise);
     } else if (strcmp(dataArray[stateIndex].c_str(), "Temperature") == 0) {
       matrix.setCursor(x + 70, 0);
       matrix.print(Temperature);
-    } else if (strcmp(dataArray[stateIndex].c_str(), "Humidity") == 0) {
-      matrix.setCursor(x + 50, 0);
-      matrix.print(Humidity);
+    } else if (strcmp(dataArray[stateIndex].c_str(), "pm1") == 0) {
+      matrix.setCursor(x + 22, 0);
+      matrix.print(pm1);
+    
+    } else if (strcmp(dataArray[stateIndex].c_str(), "RoomCapacity") == 0) {
+      matrix.setCursor(x + 78, 0);
+      matrix.print(RoomCapacity);
     }
     x--;
-    if (x < -100) {
+    if (x < ledArray[stateIndex]) {
       x = 7;
     };
     matrix.writeDisplay();
@@ -190,22 +204,22 @@ void displayLED() {
 }
 
 void displayLEDPB() {
-  if (previousLed_Interval == ledInterval) {
+  if (previousiniLed_Interval == iniInterval) {
     matrix.clear();
     matrix.setCursor(x, 0);
     matrix.print("Press Button");
     x--;
-    if (x < -100) {
+    if (x < -80) {
       x = 7;
     }
     matrix.writeDisplay();
-    previousLed_Interval = 0;
+    previousiniLed_Interval = 0;
   }
-  previousLed_Interval = previousLed_Interval + 1;
+  previousiniLed_Interval = previousiniLed_Interval + 1;
 }
 
 void displayLEDINI() {
-  if (previousLed_Interval == ledInterval) {
+  if (previousiniLed_Interval == iniInterval) {
     matrix.clear();
     matrix.setCursor(x, 0);
     matrix.print("Connecting to WIFI and MQTT");
@@ -214,13 +228,14 @@ void displayLEDINI() {
       x = 7;
     }
     matrix.writeDisplay();
-    previousLed_Interval = 0;
+    previousiniLed_Interval = 0;
   }
-  previousLed_Interval = previousLed_Interval + 1;
+  previousiniLed_Interval = previousiniLed_Interval + 1;
 }
 
 void rotateServo() {
   nextRotateDegree = (unitRotation * stateIndex) + initServoLocation;
+  // myservo.startEaseTo(nextRotateDegree,20);
   myservo.write(nextRotateDegree);
 }
 
@@ -256,6 +271,18 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(Noise);
     Serial.println("-----------------------");
   }
+  if (strcmp(topic, "student/CASA0019/TwinLab/RoomCapacity") == 0) {
+    Serial.print("RoomCapacity:");
+    char str[length + 1];
+    for (int i = 0; i < length; i++) {
+      // Serial.print((char)payload[i]);
+      str[i] = (char)payload[i];
+    }
+    str[length] = '\0';
+    RoomCapacity = atoi(str);
+    Serial.println(RoomCapacity);
+    Serial.println("-----------------------");
+  }
   if (strcmp(topic, "UCL/OPS/107/MTS/enviro") == 0) {
     Serial.print("environmental :");
     char str[length + 1];
@@ -274,15 +301,14 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
     // deserializeJson(doc,str); can use string instead of payload
     Temperature = int(doc["temperature"]);
-    Humidity = int(doc["humidity"]);
-    pm25 = int(doc["pm25"]);
+
+    pm1 = int(doc["pm1"]);
 
     Serial.println("temperature  =");
     Serial.println(Temperature);
-    Serial.println("humidity  =");
-    Serial.println(Humidity);
-    Serial.println("pm25  =");
-    Serial.println(pm25);
+
+    Serial.println("pm1  =");
+    Serial.println(pm1);
     Serial.println();
 
     Serial.println("-----------------------");
@@ -301,13 +327,9 @@ void reconnect() {
     clientId += String(random(0xffff), HEX);
     // mqttClient.connect(clientId.c_str(), mqttuser, mqttpass);
     mqttClient.connect(clientId.c_str());
-    // Temp
     mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
     mqttClient.subscribe("UCL/OPS/107/MTS/enviro");
-    // Temp
-    // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
-    // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
-    // mqttClient.subscribe("UCL/OPS/107/SLS/WS1361_01/dB");
+    mqttClient.subscribe("student/CASA0019/TwinLab/RoomCapacity");
     mqttdisconnected = false;
   }
 }
@@ -318,11 +340,11 @@ void LEDstrip() {
   // Serial.println(dataArray[stateIndex].c_str());
   if (strcmp(dataArray[stateIndex].c_str(), "Noise") == 0) {
     mapped = map(Noise, minArray[stateIndex], maxArray[stateIndex], 1, NUM_LEDS);
-    // Serial.println("noise");
-    // Serial.println(mapped);
-    fill_solid(leds, mapped, CRGB::Green);
-    // // fill_solid(leds+12, 12, CRGB::Blue);
-    // // fill_solid(leds+24, 12, CRGB::Red);
+    // if (mapped > 85){
+    // fill_solid(leds, 85, CRGB::Green);
+    // fill_solid(leds+85, mapped-85, CRGB::OrangeRed);} else{
+      fill_solid(leds, mapped, CRGB::Green);
+    // }
     FastLED.show();
   }
 
@@ -332,32 +354,30 @@ void LEDstrip() {
     } else {
       mapped = map(Temperature, minArray[stateIndex], maxArray[stateIndex], 1, NUM_LEDS);
     }
-    // Serial.println("temp");
-    // Serial.println(mapped);
-    fill_solid(leds, mapped, CRGB::Green);
-    // // fill_solid(leds+12, 12, CRGB::Blue);
-    // // fill_solid(leds+24, 12, CRGB::Red);
+    // if (mapped > 25){
+    // fill_solid(leds, 25, CRGB::Blue);
+    // fill_solid(leds+25, mapped-25, CRGB::OrangeRed);} else{
+      fill_solid(leds, mapped, CRGB::Blue);
+    // }
     FastLED.show();
   }
 
-  else if (strcmp(dataArray[stateIndex].c_str(), "Humidity") == 0) {
-    mapped = map(Humidity, minArray[stateIndex], maxArray[stateIndex], 1, NUM_LEDS);
-    // Serial.println("humid");
-    // Serial.println(mapped);
-    fill_solid(leds, mapped, CRGB::Green);
-    // // fill_solid(leds+12, 12, CRGB::Blue);
-    // // fill_solid(leds+24, 12, CRGB::Red);
+  else if (strcmp(dataArray[stateIndex].c_str(), "pm1") == 0) {
+    mapped = map(pm1, minArray[stateIndex], maxArray[stateIndex], 1, NUM_LEDS);
+    // if (mapped > 125){
+    // fill_solid(leds, 125, CRGB::Green);
+    // fill_solid(leds+125, mapped-125, CRGB::OrangeRed);} else{
+      fill_solid(leds, mapped, CRGB::Green);
+    // }
     FastLED.show();
   }
-
-  //   for (int i = 0; i <= a-1; i++) {
-  //   leds[i] = CRGB ( 0, 0, 255);
-  //   FastLED.show();
-  //   delay(200);
-  // }
-  // for (int x = 15; x <= 14+b; x++) {
-  //   leds[x] = CRGB ( 255, 0, 0);
-  //   FastLED.show();
-  //   delay(200);
-  // }
+  else if (strcmp(dataArray[stateIndex].c_str(), "RoomCapacity") == 0) {
+    mapped = map(RoomCapacity, minArray[stateIndex], maxArray[stateIndex], 1, NUM_LEDS);
+    // if (mapped > 15){
+    // fill_solid(leds, 15, CRGB::Green);
+    // fill_solid(leds+15, mapped-15, CRGB::OrangeRed);} else{
+      fill_solid(leds, mapped, CRGB::Green);
+    // }
+    FastLED.show();
+  }
 }
