@@ -5,3 +5,4 @@ Resource/ImageRecognition/mqttConfig.txt
 Resource/ImageRecognition/config/yolov3.weights
 arduino_secrets.h
 *.weights
+Resource/Document/~$Scale.pptx
