@@ -5,7 +5,7 @@ import paho.mqtt.client as mqtt
 import time
 
 # Read MQTT Data
-with open('Resource/ImageRecognition/mqttConfig.txt') as f:
+with open('Resource/SourceCode/ImageRecognition/config/mqttConfig.txt') as f:
     line = f.read().split(",")
     # lines = f.readlines()
     # print(lines)
@@ -68,9 +68,9 @@ def on_connect(client, userdata, flags, rc):
         print("Connection failed")
 
 # Capture viedeo from the camera
-VideoSignal = cv2.VideoCapture(0)
+VideoSignal = cv2.VideoCapture(1)
 # Load YOLO weights and cfg
-YOLO_net = cv2.dnn.readNet("Resource/ImageRecognition/config/yolov3.weights","Resource/ImageRecognition/config/yolov3.cfg")
+YOLO_net = cv2.dnn.readNet("Resource/SourceCode/ImageRecognition/config/yolov3.weights","Resource/SourceCode/ImageRecognition/config/yolov3.cfg")
 
 
 # YOLO Classes
@@ -148,10 +148,10 @@ while True:
                 cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 5)
                 cv2.putText(frame, boxText, (x, y - 20), cv2.FONT_ITALIC, 0.5, (255, 255, 255), 1)
     # MQTT Publish
-    print(personNum)
-    print(int(time.time() - start_time))
+    # print(personNum)
+    # print(int(time.time() - start_time))
     if Connected == True and (int(time.time() - start_time) % 5) == 0:
-        client.publish("student/CASA0019/DYLim/number", personNum)
+        client.publish("student/CASA0019/TwinLab/RoomCapacity", personNum)
     # Show result
     cv2.imshow("Result", frame)
     cv2.setMouseCallback('Result', click_event)

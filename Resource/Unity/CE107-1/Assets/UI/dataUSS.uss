@@ -1,0 +1,17 @@
+.text-content {
+    flex-direction: row;
+    width: auto;
+}
+
+.title {
+    width: 50%;
+    font-size: 40px;
+    color: rgb(255, 255, 255);
+}
+
+.value {
+    -unity-text-align: upper-right;
+    width: 50%;
+    font-size: 40px;
+    color: rgba(255, 255, 255, 255);
+}
