@@ -5,9 +5,11 @@ using UnityEngine.UI;
 
 public class linkDataEventController : MonoBehaviour
 {   
+    public GameObject animationObject;
     public GameObject barrel;
-    public float rotationSpeed = 10f;
-    public Vector3 rotationAxis = Vector3.right;
+    float rotationSpeed = 100f;
+    Vector3 rotationAxis = Vector3.right;
+    float rotateDegree = 30f;
     // Start is called before the first frame update
     void Start()
     {
@@ -32,7 +34,6 @@ public class linkDataEventController : MonoBehaviour
     }
     public void linkData(){
         Debug.Log("ON");
-        GameObject animationObject = GameObject.Find("Animation_V2");
         GameObject disassembleBtnObject = GameObject.Find("DisassembleBtn");
         Button disassemblebuttonComp = disassembleBtnObject.GetComponent<Button>();
         GameObject linkDataBtnObject = GameObject.Find("LinkMQTTBtn");
@@ -53,13 +54,27 @@ public class linkDataEventController : MonoBehaviour
     }
         
     IEnumerator RotateObjectOverTime(){
+        float currentValue = barrel.transform.localEulerAngles.x;
+        float unitRotation = rotateDegree / rotationSpeed;
+        float destination = currentValue + rotateDegree;
+
+        Debug.Log("currentValue is" + currentValue + "Rotating by " + unitRotation + "to " + destination);
+
         while (true)
         {
+            float rotatingTo = unitRotation + barrel.transform.localEulerAngles.x;
+            if (rotatingTo >= currentValue + rotateDegree){
+                barrel.transform.Rotate(destination,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
+                // barrel.transform.localRotation = Quaternion.Euler(destination,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
+                break;
+            }
             // Rotate the object by the specified amount along the specified axis
-            barrel.transform.Rotate(rotationAxis * rotationSpeed * Time.deltaTime);
+            barrel.transform.Rotate(rotatingTo,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
+            // barrel.transform.localRotation = Quaternion.Euler(rotatingTo,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
 
             // Wait for the next frame before continuing the loop
             yield return null;
         }
+        // yield return null;
     }
-}
+}   

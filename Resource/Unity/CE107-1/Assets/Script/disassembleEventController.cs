@@ -6,10 +6,12 @@ using TMPro;
 
 public class disassembleEventController : MonoBehaviour
 {
+    public GameObject animationObject;
+    bool isExploding = false;
     public void disassembleEvent(){
         // Debug.Log("Click!");
         // Get a reference to the animation object
-        GameObject animationObject = GameObject.Find("Animation_V2");
+        // GameObject animationObject = GameObject.Find("Animation_V2");
         GameObject btnObject = GameObject.Find("DisassembleBtn");
         Button buttonComp = btnObject.GetComponent<Button>();
 
@@ -17,7 +19,8 @@ public class disassembleEventController : MonoBehaviour
         Animator animator = animationObject.GetComponent<Animator>();
         TMPro.TMP_Text txt = btnObject.GetComponentInChildren<TMPro.TMP_Text>();
         Debug.Log(txt);
-        if (txt.text == "Disassemble"){
+        // if (txt.text == "Disassemble"){
+        if (isExploding == false){
             // Activate the "ActivateAnimation" trigger in the Animator
             animator.SetTrigger("Activate_Animation");
             txt.text = "Assemble";
@@ -25,17 +28,19 @@ public class disassembleEventController : MonoBehaviour
             buttonComp.interactable = false;
             // schedule a method to be called after 8 seconds
             Invoke("EnableButton", 8f);
+            isExploding = true;
         }else{
             animator.SetTrigger("Active_ReverseAnimation");
             txt.text = "Disassemble";
             buttonComp.interactable = false;
             // schedule a method to be called after 8 seconds
             Invoke("EnableButton", 8f);
+            isExploding = false;
         }
     }
     void EnableButton()
     {
-        GameObject animationObject = GameObject.Find("Animation_V2");
+        // GameObject animationObject = GameObject.Find("Animation_V2");
         GameObject btnObject = GameObject.Find("DisassembleBtn");
         Button buttonComp = btnObject.GetComponent<Button>();
         // enable the Button again
