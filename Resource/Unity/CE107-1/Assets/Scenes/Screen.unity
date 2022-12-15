@@ -123,12 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &156301 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3384847182112795566, guid: 65da6dd5a9aaf4994a03610a2e827600,
-    type: 3}
-  m_PrefabInstance: {fileID: 420117887}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &420117887
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -136,6 +130,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1689784560, guid: 65da6dd5a9aaf4994a03610a2e827600, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
         type: 3}
       propertyPath: m_RootOrder
@@ -191,26 +189,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2465735389671468625, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: barrel
-      value: 
-      objectReference: {fileID: 1229113327}
-    - target: {fileID: 2465735389671468625, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: animationObject
-      value: 
-      objectReference: {fileID: 156301}
-    - target: {fileID: 2465735389671468653, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: barrel
-      value: 
-      objectReference: {fileID: 1229113327}
-    - target: {fileID: 2465735389671468653, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: animationObject
-      value: 
-      objectReference: {fileID: 156301}
     - target: {fileID: 8128606480931161626, guid: 65da6dd5a9aaf4994a03610a2e827600,
         type: 3}
       propertyPath: m_Name
@@ -372,12 +350,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1229113327 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2230937158237442490, guid: 65da6dd5a9aaf4994a03610a2e827600,
-    type: 3}
-  m_PrefabInstance: {fileID: 420117887}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1354141925
 GameObject:
   m_ObjectHideFlags: 0
@@ -637,6 +609,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gameObjectToInstantiate: {fileID: 8128606480931161626, guid: da28bf1aef37143a1930f775cfcd5232,
     type: 3}
+  spawnedObject: {fileID: 0}
   timeThreshold: 0.5
   isTouching: 0
 --- !u!114 &1659859601
@@ -703,6 +676,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1665575178}
   - component: {fileID: 1665575177}
+  - component: {fileID: 1665575181}
+  - component: {fileID: 1665575180}
+  - component: {fileID: 1665575179}
   m_Layer: 0
   m_Name: LeanTouch
   m_TagString: Untagged
@@ -751,3 +727,140 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1665575179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665575176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c1c71d8ad5da9438de3b2e5990763f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ignoreStartedOverGui: 1
+  ignoreIsOverGui: 0
+  requiredSelectable: {fileID: 0}
+  requiredTapCount: 0
+  requiredTapInterval: 2
+  onFinger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1659859600}
+        m_TargetAssemblyTypeName: TapToPlace, Assembly-CSharp
+        m_MethodName: spawnObject
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onCount:
+    m_PersistentCalls:
+      m_Calls: []
+  ScreenDepth:
+    Conversion: 1
+    Camera: {fileID: 0}
+    Object: {fileID: 0}
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Distance: 0
+  onWorld:
+    m_PersistentCalls:
+      m_Calls: []
+  onScreen:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1665575180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665575176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c1c71d8ad5da9438de3b2e5990763f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ignoreStartedOverGui: 1
+  ignoreIsOverGui: 0
+  requiredSelectable: {fileID: 0}
+  requiredTapCount: 0
+  requiredTapInterval: 1
+  onFinger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1665575181}
+        m_TargetAssemblyTypeName: Lean.Touch.LeanSelectByFinger, LeanTouch
+        m_MethodName: SelectScreenPosition
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onCount:
+    m_PersistentCalls:
+      m_Calls: []
+  ScreenDepth:
+    Conversion: 1
+    Camera: {fileID: 0}
+    Object: {fileID: 0}
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Distance: 0
+  onWorld:
+    m_PersistentCalls:
+      m_Calls: []
+  onScreen:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1665575181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1665575176}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 479d695282ba6cf4ba3ab3c4848f05e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  deselectWithNothing: 0
+  limit: 0
+  maxSelectables: 5
+  reselect: 3
+  selectables: []
+  onSelected:
+    m_PersistentCalls:
+      m_Calls: []
+  onDeselected:
+    m_PersistentCalls:
+      m_Calls: []
+  onNothing:
+    m_PersistentCalls:
+      m_Calls: []
+  ScreenQuery:
+    Method: 0
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Search: 1
+    RequiredTag: 
+    Camera: {fileID: 1354141926}
+    Distance: 50
+  deselectWithFingers: 0
+  onSelectedFinger:
+    m_PersistentCalls:
+      m_Calls: []

@@ -5,6 +5,10 @@ using UnityEngine.UIElements;
 
 public class appendData : MonoBehaviour
 {
+    public static int CE_Temperature = 0;
+    public static int CE_pm1 = 0;
+    public static int CE_RoomCapacity = 0;
+    public static double CE_dB = 0;
     public class enviroMQTTStructure{
         public int temperature;
         public int pressure;
@@ -58,6 +62,9 @@ public class appendData : MonoBehaviour
         string topic = fullTopicAddress[fullTopicAddress.Length - 1];
         if (topic == "enviro"){
             enviroMQTTStructure enviroValues = enviroJson(messageStorage[lastIndex]);
+            CE_Temperature = enviroValues.temperature;
+            CE_pm1 = enviroValues.pm1;
+
             foreach(string dataName in enviroSubTopics){
                 VisualElement updatingVaildation = GetComponent<UIDocument>().rootVisualElement.Q(dataName);
                 if (updatingVaildation == null){
@@ -102,6 +109,11 @@ public class appendData : MonoBehaviour
             }else{
                 Label value = updatingVaildation.Query<Label>("Value");
                 value.text = System.Math.Round(double.Parse(messageStorage[lastIndex]),2).ToString();
+            }
+            if(topic == "dB"){
+                CE_dB = System.Math.Round(double.Parse(messageStorage[lastIndex]),2);
+            }else if(topic == "RoomCapacity"){
+                CE_RoomCapacity = int.Parse(messageStorage[lastIndex]);
             }
         }
     }

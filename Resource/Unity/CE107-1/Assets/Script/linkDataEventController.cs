@@ -5,11 +5,12 @@ using UnityEngine.UI;
 
 public class linkDataEventController : MonoBehaviour
 {   
-    public GameObject animationObject;
     public GameObject barrel;
-    float rotationSpeed = 100f;
+    float rotationSpeed = 1000f;
     Vector3 rotationAxis = Vector3.right;
-    float rotateDegree = 30f;
+    float rotateDegree = 90f;
+    float accmRotation = 0;
+    int rotationDirection = 1;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,34 +20,7 @@ public class linkDataEventController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // animationObject.transform.Rotate(Vector3.right, 30f, Space.World);
-        // float step = 10f * Time.deltaTime;
-        // int rotationDirection = 1;
-        // Vector3 rotationVector = new Vector3();
-        // rotationVector = new Vector3(
-        //         barrel.transform.localEulerAngles.x + (rotationDirection * rotateDegree),
-        //         barrel.transform.localEulerAngles.y,
-        //         barrel.transform.localEulerAngles.z);
-        // barrel.transform.localRotation = Quaternion.Lerp(
-        //             barrel.transform.localRotation,
-        //             Quaternion.Euler(rotationVector),
-        //             step);
-    }
-    public void linkData(){
-        Debug.Log("ON");
-        GameObject disassembleBtnObject = GameObject.Find("DisassembleBtn");
-        Button disassemblebuttonComp = disassembleBtnObject.GetComponent<Button>();
-        GameObject linkDataBtnObject = GameObject.Find("LinkMQTTBtn");
-        Button linkDataButtonComp = linkDataBtnObject.GetComponent<Button>();
-        GameObject changeDataBtnObject = GameObject.Find("changeDataBtn");
-        Button changeDataButtonComp = changeDataBtnObject.GetComponent<Button>();
 
-        // Get a reference to the Animator component on the animation object
-        Animator animator = animationObject.GetComponent<Animator>();
-        animator.enabled = false;
-
-        disassemblebuttonComp.interactable = false;
-        changeDataButtonComp.interactable = true;
     }
 
     public void changeData(){
@@ -54,27 +28,61 @@ public class linkDataEventController : MonoBehaviour
     }
         
     IEnumerator RotateObjectOverTime(){
-        float currentValue = barrel.transform.localEulerAngles.x;
         float unitRotation = rotateDegree / rotationSpeed;
-        float destination = currentValue + rotateDegree;
-
-        Debug.Log("currentValue is" + currentValue + "Rotating by " + unitRotation + "to " + destination);
+        float localAccumRotation = 0f;
+        Debug.Log("Accumulated rotation is :" + accmRotation);
+        Debug.Log(unitRotation);
 
         while (true)
         {
-            float rotatingTo = unitRotation + barrel.transform.localEulerAngles.x;
-            if (rotatingTo >= currentValue + rotateDegree){
-                barrel.transform.Rotate(destination,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
-                // barrel.transform.localRotation = Quaternion.Euler(destination,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
+            localAccumRotation += unitRotation;
+            if (localAccumRotation >= rotateDegree){
+                barrel.transform.Rotate((localAccumRotation - rotateDegree) * rotationDirection,0,0);
                 break;
             }
-            // Rotate the object by the specified amount along the specified axis
-            barrel.transform.Rotate(rotatingTo,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
-            // barrel.transform.localRotation = Quaternion.Euler(rotatingTo,barrel.transform.localEulerAngles.y,barrel.transform.localEulerAngles.z);
-
-            // Wait for the next frame before continuing the loop
+            barrel.transform.Rotate(unitRotation * rotationDirection,0,0);
             yield return null;
         }
-        // yield return null;
+        localAccumRotation = 0f;
+        accmRotation += rotateDegree * rotationDirection;
+        if (accmRotation == 360 || accmRotation == 0){
+            rotationDirection = rotationDirection * -1;
+        }
+        setLED((int) (accmRotation / rotateDegree));
+    }
+
+    public static void setLED(int index){
+        
+        GameObject ledContainer = GameObject.FindWithTag("LEDs");
+        int ledNum = 0;
+        if(index == 0){
+            ledNum = (int)Mathf.Lerp(0, 34, Mathf.InverseLerp(30, 140, (float)appendData.CE_dB));   // dB
+        }else if(index == 1){
+            ledNum = (int)Mathf.Lerp(0, 34, Mathf.InverseLerp(0, 250, appendData.CE_pm1));    // PM1
+        }else if(index == 2){
+            ledNum = (int)Mathf.Lerp(0, 34, Mathf.InverseLerp(0, 30, appendData.CE_RoomCapacity));    // RC
+        }else if(index == 3){
+            ledNum = (int)Mathf.Lerp(0, 34, Mathf.InverseLerp(15, 35, appendData.CE_Temperature));    // Temp
+        }else{
+            Debug.Log("Wrong Index");
+        }
+        Debug.Log("Index is " + index + " led num is " + ledNum);
+        for(int i = 0; i < ledNum + 1; i++){
+            GameObject led = ledContainer.transform.GetChild(i).gameObject;
+            Renderer renderer = led.GetComponent<Renderer>();
+            renderer.materials[1].SetColor("_Color", Color.cyan);
+            renderer.materials[1].SetColor("_EmissionColor", Color.white);
+            renderer.materials[3].SetColor("_Color", Color.cyan);
+            renderer.materials[3].SetColor("_EmissionColor", Color.white);
+        }
+        for(int i = ledNum + 1; i < 35; i++){
+            GameObject led = ledContainer.transform.GetChild(i).gameObject;
+            Renderer renderer = led.GetComponent<Renderer>();
+            renderer.materials[1].SetColor("_Color", Color.black);
+            renderer.materials[1].SetColor("_EmissionColor", Color.black);
+            renderer.materials[3].SetColor("_Color", Color.black);
+            renderer.materials[3].SetColor("_EmissionColor", Color.black);
+        }
+        // ledContainer.transform.GetChild(index).gameObject;
     }
 }   
