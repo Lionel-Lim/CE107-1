@@ -1,13 +1,16 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 
+
 [RequireComponent(typeof(ARRaycastManager))]
 public class TapToPlace : MonoBehaviour
 {
+
     public GameObject gameObjectToInstantiate; //the Prefab GameObject to instantiate in the AR environment. To be added in the inspector window
-    public GameObject spawnedObject; //the Prefab Instantiate in the scene. Used internally by the script 
+    private GameObject spawnedObject; //the Prefab Instantiate in the scene. Used internally by the script 
     private ARRaycastManager _arRaycastManager; //part of the ARSession GO
     private ARPlaneManager _arPlaneManager;
     private Vector2 touchPosition; //XZ position of the user Tap
@@ -18,6 +21,7 @@ public class TapToPlace : MonoBehaviour
 
     public delegate void ContentVisibleDelegate(); 
     public event ContentVisibleDelegate _contentVisibleEvent;
+
 
     private void Awake()
     {
@@ -37,30 +41,40 @@ public class TapToPlace : MonoBehaviour
         isTouching = false;
         timeThreshold = 0;
         return false;
-    }
-/*
-  void Update()
-    {
-       [...]     
-    }
-*/
-public void spawnObject()
-{
-    if (!TryGetTouchPosition(out Vector2 touchPosition))
-        return;
 
-    if (_arRaycastManager.Raycast(touchPosition, hits, trackableTypes: TrackableType.PlaneWithinPolygon))
+    }
+
+    // Update is called once per frame
+
+    void Update()
     {
-    var hitPose = hits[0].pose;
-        if (spawnedObject == null)
+        if (isTouching == true)
         {
-            spawnedObject = Instantiate(gameObjectToInstantiate, hitPose.position, hitPose.rotation);
-            _contentVisibleEvent();
+            timeThreshold -= Time.deltaTime;
+            //Debug.Log("TIMING: " + timeThreshold);
         }
-        else
+
+        if (!TryGetTouchPosition(out Vector2 touchPosition))
+            return;
+
+        if (_arRaycastManager.Raycast(touchPosition, hits, trackableTypes: TrackableType.PlaneWithinPolygon))
         {
-            spawnedObject.transform.position = hitPose.position;
+            var hitPose = hits[0].pose;
+
+            if (timeThreshold < 0)
+            {
+                if (spawnedObject == null)
+                {
+                    spawnedObject = Instantiate(gameObjectToInstantiate, hitPose.position, hitPose.rotation);
+
+                    _contentVisibleEvent();
+
+                }
+                // else
+                // {
+                //     spawnedObject.transform.position = hitPose.position;
+                // }
+            }
         }
     }
-}
 }

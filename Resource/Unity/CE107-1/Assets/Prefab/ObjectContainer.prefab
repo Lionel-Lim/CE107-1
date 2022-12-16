@@ -3207,7 +3207,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02e37bf9d23704849b6d4bb2fae198be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selfSelected: 1
+  selfSelected: 0
   onSelected:
     m_PersistentCalls:
       m_Calls: []

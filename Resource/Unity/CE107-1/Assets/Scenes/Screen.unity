@@ -123,79 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1001 &420117887
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 1689784560, guid: 65da6dd5a9aaf4994a03610a2e827600, type: 3}
-      propertyPath: m_Enabled
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 180
-      objectReference: {fileID: 0}
-    - target: {fileID: 210496288530359721, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8128606480931161626, guid: 65da6dd5a9aaf4994a03610a2e827600,
-        type: 3}
-      propertyPath: m_Name
-      value: ObjectContainer
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 65da6dd5a9aaf4994a03610a2e827600, type: 3}
 --- !u!1 &422218013
 GameObject:
   m_ObjectHideFlags: 0
@@ -607,9 +534,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08b77babc749449f0b3c96f1070dbf6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameObjectToInstantiate: {fileID: 8128606480931161626, guid: da28bf1aef37143a1930f775cfcd5232,
+  gameObjectToInstantiate: {fileID: 8128606480931161626, guid: 65da6dd5a9aaf4994a03610a2e827600,
     type: 3}
-  spawnedObject: {fileID: 0}
   timeThreshold: 0.5
   isTouching: 0
 --- !u!114 &1659859601
@@ -734,7 +660,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1665575176}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7c1c71d8ad5da9438de3b2e5990763f, type: 3}
   m_Name: 
@@ -742,7 +668,7 @@ MonoBehaviour:
   ignoreStartedOverGui: 1
   ignoreIsOverGui: 0
   requiredSelectable: {fileID: 0}
-  requiredTapCount: 0
+  requiredTapCount: 2
   requiredTapInterval: 2
   onFinger:
     m_PersistentCalls:
@@ -783,7 +709,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1665575176}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7c1c71d8ad5da9438de3b2e5990763f, type: 3}
   m_Name: 
@@ -832,7 +758,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1665575176}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 479d695282ba6cf4ba3ab3c4848f05e8, type: 3}
   m_Name: 
