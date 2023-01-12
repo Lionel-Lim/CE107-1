@@ -68,7 +68,7 @@ def on_connect(client, userdata, flags, rc):
         print("Connection failed")
 
 # Capture viedeo from the camera
-VideoSignal = cv2.VideoCapture(1)
+VideoSignal = cv2.VideoCapture(0)
 # Load YOLO weights and cfg
 YOLO_net = cv2.dnn.readNet("Resource/SourceCode/ImageRecognition/config/yolov3.weights","Resource/SourceCode/ImageRecognition/config/yolov3.cfg")
 
